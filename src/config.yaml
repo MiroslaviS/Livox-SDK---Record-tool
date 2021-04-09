@@ -1,0 +1,4 @@
+IMUrefreshRate: 200
+enableFan: 1
+coordinatesType: Cartezian
+dataDirectory: ./lidarData/
