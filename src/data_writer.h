@@ -61,6 +61,7 @@ class DataWriter {
         std::mutex *bufferMutex;
         std::string root;
         std::vector<std::thread*> threadVectors;
+        std::string filename;
 };
 
 #endif

@@ -20,6 +20,7 @@ DataWriter::DataWriter(std::mutex *fileMutex, std::mutex *bufferMutex, std::stri
     this->fileMutex = fileMutex;
     this->bufferMutex = bufferMutex;
     this->root = root;
+    this->filename = DataWriter::getFilename()
 }
 
 int DataWriter::createFolder(char *broadcastId, std::string root){
@@ -92,8 +93,11 @@ std::string DataWriter::getFilename(){
     int year = 1900 + parts->tm_year;
     int month = 1 + parts->tm_mon;
     int mday = parts->tm_mday;
+    int hour = parts->tm_hour;
+    int minutes = parts->tm_min;
+    int sec = parts->tm_sec;
 
-    std::string result = std::to_string(mday) + std::to_string(month) + std::to_string(year);
+    std::string result = std::to_string(mday) + "_" + std::to_string(month) + "_" + std::to_string(hour) + "_" + std::to_string(minutes) + "_" + std::to_string(sec);
     
     return result;
 }
@@ -101,7 +105,7 @@ std::string DataWriter::getFilename(){
 void DataWriter::storeBuffer(DataWriter *this_writer,  std::vector<CustomLivoxExtendRawPoint *> buffer, char *lidarBroadcastId, std::mutex *fileMutex, std::string root){
     fileMutex->lock();
 
-    std::string filename = DataWriter::getFilename();
+    std::string filename = this_writer->filename;
     std::string broadcast_string(lidarBroadcastId);
 
     if ( DataWriter::createFolder(lidarBroadcastId, root) != 0 ){
@@ -150,7 +154,6 @@ void DataWriter::addPoint(LivoxExtendRawPoint *points_data, DataWriter *writer, 
         writer->pointBuffer.push_back(point);
         writer->queue_counter += 1;
     }
-
     
     if ( writer->pointBuffer.size() >= WRITE_BUFFER_SIZE ){
         // Create new thread and write to file //
@@ -190,7 +193,7 @@ void DataWriter::addIMUPoint(LivoxImuPoint *x, DataWriter *writer, char *broadca
 }
 
 void DataWriter::storeIMUBuffer(DataWriter *this_writer, std::vector<CustomLivoxImuPoint *> buffer, char *lidarBroadcastId, std::mutex *fileMutex, std::string root){
-    std::string filename = DataWriter::getFilename();
+    std::string filename = this_writer->filename;
     std::string broadcast_string(lidarBroadcastId);
 
     if ( DataWriter::createIMUFolder(lidarBroadcastId, root) != 0 ){
@@ -222,7 +225,7 @@ void DataWriter::storeIMUBuffer(DataWriter *this_writer, std::vector<CustomLivox
 
 DataWriter::~DataWriter(){
     for ( std::thread *elem: this->threadVectors ){
-        std::cout << "Joing thread element\n";
+        std::cout << "Join thread element\n";
         elem->join();
     }
 }

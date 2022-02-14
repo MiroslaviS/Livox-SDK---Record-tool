@@ -498,7 +498,6 @@ bool LdsLidar::FindInWhitelist(const char* bd_code) {
     std::string rootFolder = this->configurator->getWriterConfig().first;
 
     this->writers[handle] = new DataWriter(fileMutex, bufferMutex, rootFolder);
-    this->writers[handle] = new DataWriter(fileMutex, bufferMutex, rootFolder);
     this->writerCreated[handle] = true;
 
     return this->writers[handle];
